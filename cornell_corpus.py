@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-# !/usr/bin/env python
-
 """
 Extract conversation text from Cornell Movie Dialogs Corpus.
 Output: pair_corpus.txt (like the following format)
@@ -36,6 +33,9 @@ def unzip():
 def main(threshold=50):
 
     # collect the conversation data from Cornell Movie Corpus
+    # storing data as key value pair
+    # line number as key
+    # line conversation as value
     text_dic = {}
     # for text in open('./data/cornell_movie-dialogs_corpus/movie_lines_utf-8.txt', 'r', encoding='utf-8'):
     # encoding='iso-8859-1'
@@ -45,9 +45,12 @@ def main(threshold=50):
             text_dic[seq_list[0]] = seq_list[4].split('\n')[0]
 
     conv_id_list = []
+    # creating conv id list 
+    # list contains tuples of conv question id and conv reply id
     for text in open('./data/cornell_movie-dialogs_corpus/movie_conversations.txt', 'r', encoding='utf-8'):
         seq_list = text.split(" +++$+++ ")
         conv_list = seq_list[3].replace("'", '').replace("[", '').replace("]\n", '').split(", ")
+        # only taking first 2 lines from the list of conversation
         conv_id_list.append((conv_list[0], conv_list[1]))
 
     # remove html tags and the sentences containing '--' or '...'
@@ -58,6 +61,11 @@ def main(threshold=50):
     posts = []
     cmnts = []
     for tup in conv_id_list[:]:
+        # print("text_dic.get(tup[0], False) ", text_dic.get(tup[0], False))
+        # text_dic.get(tup[0], False)
+        # here we will get value from dictionary, if not found then return False
+
+        # here checking if question and answer is present
         if text_dic.get(tup[0], False) and text_dic.get(tup[1], False):
             # remove html tags
             text_dic[tup[0]] = tag.sub("", text_dic[tup[0]])
@@ -73,6 +81,7 @@ def main(threshold=50):
             else:
                 # remove the sentences containing multi byte words
                 if is_english(text_dic[tup[0]] + text_dic[tup[1]]):
+                    # only append if no error
                     posts.append([unicodedata.normalize('NFKC', word.lower())
                                   for word in word_tokenize(text_dic[tup[0]])])
                     cmnts.append([unicodedata.normalize('NFKC', word.lower())
@@ -86,12 +95,19 @@ def main(threshold=50):
             conv_id_list.remove(tup)
 
     # remove the sentences having low frequency words
+    # prune_at is the minimum frequency required
     corpus = corpora.Dictionary(posts + cmnts, prune_at=None)
     cut_freq = {freq + 1 for freq in range(threshold)}
+
+    # dfs - how many documents contain this token.
+    # corpus.dfs[corpus.token2id[word]]
+    # corpus.token2id - this will return unique token for word
+    # corpus.token2id[word]
     with open('data/pair_corpus.txt', 'w', encoding='utf-8') as f:
         for i in range(len(posts)):
             post = set([corpus.dfs[corpus.token2id[word]] for word in posts[i]])
             cmnt = set([corpus.dfs[corpus.token2id[word]] for word in cmnts[i]])
+    # storing only high frequency conversetions
             if len(post & cut_freq) == 0 and len(cmnt & cut_freq) == 0:
                 f.write(text_dic[conv_id_list[i][0]] + '\t' + text_dic[conv_id_list[i][1]] + '\n')
 
