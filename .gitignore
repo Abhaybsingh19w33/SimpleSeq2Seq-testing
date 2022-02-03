@@ -1,0 +1,10 @@
+.idea
+__pycache__/*
+
+data/*
+!data/corpus
+!data/s2s_sample.gif
+!data/train160epochs.png
+data/corpus/*
+!data/corpus/.gitkeep
+
