@@ -22,8 +22,31 @@ xp = np
 
 
 class Encoder(chainer.Chain):
+    # enc=Encoder(vocab_size, feature_num, hidden_num, batch_size),       # encoder
     def __init__(self, vocab_size, embed_size, hidden_size, batch_size):
+
+        print("Encoder called with parameters")
+        vocab_size, embed_size, hidden_size, batch_size
+        print("vocab size : ", vocab_size)
+        print("(embed_size)feature number : ", embed_size)
+        print("hidden number : ", hidden_size)
+        print("batch size : ", batch_size)
+        print()
+
         super(Encoder, self).__init__(
+            # Efficient linear layer for one-hot input.
+
+            # This is a link that wraps the ~chainer.functions.embed_id function. This link holds the ID (word) embedding matrix W as a parameter.
+
+            # Args:
+            #     in_size (int): Number of different identifiers (a.k.a. vocabulary
+            #         size).
+            #     out_size (int): Size of embedding vector.
+            #     initialW (initializer <initializer>): Initializer to
+            #         initialize the weight. When it is numpy.ndarray, its ndim should be 2.
+            #     ignore_label (int or None): If ignore_label is an int value,
+            #         i-th row of return value is filled with 0.
+
             xe=L.EmbedID(vocab_size, embed_size, ignore_label=-1),
             eh=L.Linear(embed_size, 4 * hidden_size),
             hh=L.Linear(hidden_size, 4 * hidden_size),
@@ -61,7 +84,6 @@ class Decoder(chainer.Chain):
 
 
 class Seq2Seq(chainer.Chain):
-
     def __init__(self, vocab_size, feature_num, hidden_num, batch_size, gpu_flg):
         """
         :param vocab_size: input vocab size
@@ -69,6 +91,14 @@ class Seq2Seq(chainer.Chain):
         :param hidden_num: size of hidden layer
         :return:
         """
+
+        print("Seq2seq paased parameters")
+        print("vocab size : ", vocab_size)
+        print("feature number : ", feature_num)
+        print("hidden number : ", hidden_num)
+        print("batch size : ", batch_size)
+        print()
+
         global xp
         xp = cuda.cupy if gpu_flg >= 0 else np
 
@@ -76,12 +106,15 @@ class Seq2Seq(chainer.Chain):
         self.hidden_num = hidden_num
         self.batch_size = batch_size
         self.c_batch = Variable(xp.zeros((batch_size, self.hidden_num), dtype=xp.float32))  # cell Variable
+        print("cell variable shape : ",self.c_batch.shape)
         self.h_batch = Variable(xp.zeros((batch_size, self.hidden_num), dtype=xp.float32))  # hidden Variable
-
+        print("hidden variable shape : ",self.h_batch.shape)
+        print()
         super(Seq2Seq, self).__init__(
             enc=Encoder(vocab_size, feature_num, hidden_num, batch_size),       # encoder
             dec=Decoder(vocab_size, feature_num, hidden_num)                    # decoder
         )
+        exit(1)
 
     def encode(self, input_batch, train):
         """

@@ -46,6 +46,7 @@ def main():
     #### create dictionary ####
     ###########################
 
+    # this return the list containing list of tokenid 
     if os.path.exists('./data/corpus/dictionary.dict'):
         corpus = ConvCorpus(file_path=None, batch_size=batchsize)
         corpus.load(load_dir='./data/corpus/')
@@ -65,9 +66,28 @@ def main():
     #### create model ####
     ######################
 
+    # data_file = args.data
+    # n_epoch = args.epoch
+    # feature_num = args.feature_num
+    # hidden_num = args.hidden_num
+    # batchsize = args.batchsize
+    # testsize = args.testsize
+    print("printing model parameters")
+    print("data file name : ",args.data)
+    print("epoch : ",args.epoch)
+    print("feature number  : ",args.feature_num)
+    print("hidden number : ",args.hidden_num)
+    print("batch size : ",args.batchsize)
+    print("test size : ",args.testsize)
+    print()
+    
+    # :param vocab_size: input vocab size
+    # :param feature_num: size of feature layer (embed layer)
+    # :param hidden_num: size of hidden layer
     model = Seq2Seq(len(corpus.dic.token2id), feature_num=feature_num,
                     hidden_num=hidden_num, batch_size=batchsize, gpu_flg=-1)
 
+    exit(1)
     optimizer = optimizers.Adam(alpha=0.001)
     optimizer.setup(model)
     optimizer.add_hook(chainer.optimizer.GradientClipping(5))
